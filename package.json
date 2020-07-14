@@ -3,6 +3,11 @@
 	"displayName": "turboHugo",
 	"description": "Provide powerful Hugo commands",
 	"version": "0.0.1",
+	"publisher": "xenon",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/WoosterInitiative/turbohugo"
+	},
 	"engines": {
 		"vscode": "^1.47.0"
 	},
@@ -10,16 +15,47 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:turbohugo.helloWorld"
+		"workspaceContains:**/config.toml"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "turbohugo.helloWorld",
-				"title": "Hello World"
+				"command": "turbohugo.version",
+				"title": "turboHugo: Version"
+			},
+			{
+				"command": "turbohugo.newpost",
+				"title": "turboHugo: New Post"
+			},
+			{
+				"command": "turbohugo.newarchetype",
+				"title": "turboHugo: New Archetype"
 			}
-		]
+		],
+		"configuration": {
+			"title": "turboHugo",
+			"properties": {
+				"turbohugo.defaultContent": {
+					"type": "string",
+					"default": "content",
+					"description": "Default content folder",
+					"format": "uri"
+				},
+				"turbohugo.defaultSection": {
+					"type": "string",
+					"default": "post",
+					"description": "Default section for new posts",
+					"format": "uri"
+				},
+				"turbohugo.defaultArchetype": {
+					"type": "string",
+					"default": null,
+					"description": "(Optional) Default archetype/bundle for turboHugo: New Archetype",
+					"format": "uri"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
