@@ -68,13 +68,18 @@
 				},
 				"turbohugo.previewArguments": {
 				  "type": "string",
-				  "default": "--buildDrafts --buildFutre",
+				  "default": "--buildDrafts --buildFuture",
 				  "description": "Arguments for preview server"
 				},
 				"turbohugo.buildArguments": {
 				  "type": "string",
-				  "default": "--gc --minify"
+				  "default": "--gc --minify",
 				  "description": "Arguments for build"
+				},
+				"turbohugo.bindServer": {
+					"type": "boolean",
+					"default": "false",
+					"description": "Make the server externally accessible"
 				}
 			}
 		}
