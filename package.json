@@ -34,10 +34,10 @@
 			},
 			{
 			  "command": "turbohugo.server",
-			  "title": "turboHugo.server"
+			  "title": "turboHugo: Server"
 			},
 			{
-			  "command": "turbohugo.buildPreview",
+			  "command": "turbohugo.buildpreview",
 			  "title": "turboHugo: Preview Build"
 			},
 			{
@@ -78,7 +78,7 @@
 				},
 				"turbohugo.bindServer": {
 					"type": "boolean",
-					"default": "false",
+					"default": false,
 					"description": "Make the server externally accessible"
 				}
 			}
