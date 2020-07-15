@@ -31,6 +31,18 @@
 			{
 				"command": "turbohugo.newarchetype",
 				"title": "turboHugo: New Archetype"
+			},
+			{
+			  "command": "turbohugo.server",
+			  "title": "turboHugo.server"
+			},
+			{
+			  "command": "turbohugo.buildPreview",
+			  "title": "turboHugo: Preview Build"
+			},
+			{
+			  "command": "turbohugo.build",
+			  "title": "turboHugo: Build"
 			}
 		],
 		"configuration": {
@@ -53,6 +65,16 @@
 					"default": null,
 					"description": "(Optional) Default archetype/bundle for turboHugo: New Archetype",
 					"format": "uri"
+				},
+				"turbohugo.previewArguments": {
+				  "type": "string",
+				  "default": "--buildDrafts --buildFutre",
+				  "description": "Arguments for preview server"
+				},
+				"turbohugo.buildArguments": {
+				  "type": "string",
+				  "default": "--gc --minify"
+				  "description": "Arguments for build"
 				}
 			}
 		}
