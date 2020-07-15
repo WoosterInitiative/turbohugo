@@ -103,6 +103,8 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		});
 	});
+	
+	let buildPreview = vscode.registerCommand('buildPreview')
 
 	context.subscriptions.push(getVersion);
 	context.subscriptions.push(newPost);
