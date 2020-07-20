@@ -37,6 +37,10 @@
 			  "title": "turboHugo: Server"
 			},
 			{
+				"command": "turbohugo.stopserver",
+				"title": "turboHugo: Stop Server"
+			},
+			{
 			  "command": "turbohugo.buildpreview",
 			  "title": "turboHugo: Preview Build"
 			},

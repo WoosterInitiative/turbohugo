@@ -1,10 +1,15 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { isNullOrUndefined, isNull, isUndefined } from 'util';
+import { ChildProcess, spawn } from 'child_process';
+// var kill  = require('tree-kill');
+// import { spawn, ChildProcess } from "child_process";
 
 // required to be able to run commands, I think
 const { exec } = require('child_process');
+
+let startCmd: ChildProcess;
+const os = require('os');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -12,7 +17,7 @@ const { exec } = require('child_process');
 // and activates this function if it finds it
 export function activate(context: vscode.ExtensionContext) {
 
-	console.log('Congratulations, your extension "turbohugo" is now active!');
+	// console.log('Congratulations, your extension "turbohugo" is now active!');
 
 	// grabs extension specific settings
 	let configuration = vscode.workspace.getConfiguration('turbohugo');
@@ -22,6 +27,22 @@ export function activate(context: vscode.ExtensionContext) {
 	let previewArguments = configuration.get('previewArguments');
 	let buildArguments = configuration.get('buildArguments');
 	let bindServer = configuration.get('bindServer');
+	
+	// let terminal: vscode.Terminal;
+	let statusBar: vscode.StatusBarItem;
+	// const opn = require('opn');
+	
+
+	statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+	// statusBar.command = 'turbohugo.buildpreview';
+
+	updateStatusBarItem( ``, 'turbohugo.buildpreview' );
+
+	function updateStatusBarItem( statusBarText: string, statusBarCommand: string ): void {
+		statusBar.text = `turboHugo` + statusBarText;
+		statusBar.command = statusBarCommand;
+		statusBar.show();
+	}
 
 	// returns the hugo version being used
 	let getVersion = vscode.commands.registerCommand('turbohugo.version', () => {
@@ -104,17 +125,59 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// runs hugo server with preview options
 	let buildPreview = vscode.commands.registerCommand('turbohugo.buildpreview', () => {
-		let terminal = vscode.window.createTerminal({
-			name: 'Hugo Server'
-		});
+
 
 		let execCommand = 'hugo server ' + previewArguments + ' -s ' + vscode.workspace.rootPath;
-		terminal.sendText( execCommand );
 
-		terminal.show;
-		/*
+		// startCmd = spawn( 'hugo', ['server', String(previewArguments), `-s="${vscode.workspace.rootPath}"`]);
+
+		startCmd = exec( execCommand );
+
+		// vscode.window.showInformationMessage( `${startCmd.pid}` );
+
+		console.log("PID: " + startCmd.pid);
+		console.log("Connected: " + startCmd.connected);
+		// console.log("stdout: " + startCmd.stdout?.read);
+		// console.log("stderr: " + startCmd.stderr?.read);
+
+
+		// startCmd = spawn('hugo', ['server', previewArguments, `-s="${vscode.workspace.rootPath}"`], { shell: true} );
+		updateStatusBarItem( `: $(stop) Stop Server`, 'turbohugo.stopserver' );
+
+		// startCmd.kill();
+
+
+
+		// terminal = vscode.window.createTerminal({
+		// 	name: 'Hugo Server'
+		// });
+
+		// let execCommand = 'hugo server ' + previewArguments + ' -s ' + vscode.workspace.rootPath;
+		// terminal.sendText( execCommand );
+
+		// terminal.show;
+
 		
-		exec(execCommand, (err: string, stdout: string, stderr: string) => {
+/*
+		startCmd.stdout.on('data', (data) => {
+			if (data.indexOf('building sites') > -1) {
+				opn('http://localhost:9081');
+			}
+	
+			console.log(`stdout: ${data}`);
+		});
+	
+		startCmd.stderr.on('data', (data) => {
+			console.log(data.toString());
+			vscode.window.showErrorMessage(`Error running server`);
+		});
+	
+		startCmd.on('close', (code) => {
+			console.log('Command close, code = ', code);
+		});
+*/		
+		/*
+		startCmd = exec(execCommand, (err: string, stdout: string, stderr: string) => {
 			if (stdout) {
 				vscode.window.showInformationMessage(stdout);
 			}
@@ -127,42 +190,46 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 		*/
 	});
-/*
-	let buildPreview = vscode.commands.registerCommand('turbohugo.buildpreview', () => {
-		let terminal = vscode.window.createTerminal({
-			name: 'Hugo Server'
-		});
 
-		let execCommand = 'hugo server ' + previewArguments + ' -s ' + vscode.workspace.rootPath;
-		terminal.sendText( execCommand );
-
-		terminal.show;
-		/*
-		
-		exec(execCommand, (err: string, stdout: string, stderr: string) => {
-			if (stdout) {
-				vscode.window.showInformationMessage(stdout);
+	let stopServer = vscode.commands.registerCommand('turbohugo.stopserver', () => {
+		if (startCmd) {
+			// startCmd.send('SIGINT');
+			// startCmd.kill('SIGINT');
+			spawn("taskkill", ["/pid", String(startCmd.pid), '/f', '/t']);
+			// vscode.window.showInformationMessage('stdout: ' + startCmd.stdout + '\nstderr: ' + startCmd.stderr );
+			if (startCmd.killed) {
+				vscode.window.showInformationMessage('Process killed');
+			} else {
+				vscode.window.showWarningMessage('Process didn\'t die');
 			}
-			if (stderr) {
-				console.error('stderr:', stderr);
-			}
-			if (err) {
-				vscode.window.showErrorMessage(err);
-			}
-		});
-		*/
+			
+		} else {
+			vscode.window.showWarningMessage('Did not find a process to kill');
+		}
+		updateStatusBarItem( `: $(play) Start Server`, `turbohugo.buildpreview` );
 	});
 
 	context.subscriptions.push(getVersion);
 	context.subscriptions.push(newPost);
 	context.subscriptions.push(newArchetype);
 	context.subscriptions.push(buildPreview);
+	context.subscriptions.push(stopServer);
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+	if (startCmd) {
+		if (os.platform() === 'win32') {
+			spawn("taskkill", ["/pid", String(startCmd.pid), '/f', '/t']);
+		} else {
+			startCmd.kill();
+		}
+	} else {
+		vscode.window.showWarningMessage('Server is not running, please start');
+	}
+}
 
-
+/*
 function selectTerminal(): Thenable<vscode.Terminal | undefined> {
 	interface TerminalQuickPickItem extends vscode.QuickPickItem {
 		terminal: vscode.Terminal;
@@ -178,3 +245,4 @@ function selectTerminal(): Thenable<vscode.Terminal | undefined> {
 		return item ? item.terminal : undefined;
 	});
 }
+*/
